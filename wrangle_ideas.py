@@ -579,3 +579,19 @@ def correlation_charts(train,columns_list, target):
             sns.regplot(data = train, x = col, y = target, scatter_kws={'alpha': 0.1}, line_kws={'color': 'red'})
 
             plt.show()
+
+
+def correlation_tests(train, columns_list, target):
+    '''
+    Runs a correlation test on dataframe features vs target variable
+    '''
+    corr_df = pd.DataFrame({'feature': [],
+                        'r': [],
+                       'p': []})
+    for i, col in enumerate(train[columns_list]):
+        r, p = stats.pearsonr(train[col], train[target])
+        corr_df.loc[i] = [col, abs(r), p]
+    to_return = corr_df.sort_values(by='r', ascending=False)
+    to_return['target'] = target
+    return to_return
+    

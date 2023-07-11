@@ -61,7 +61,7 @@ def get_X_train_val_test(train,validate, test, list_of_features,target):
     return X_train, X_validate, X_test, y_train, y_validate, y_test
 
 
-def split_data(df, target):
+def split_data(df):
     '''
     Takes in a dataframe and returns train, validate, test subset dataframes
     '''
@@ -188,13 +188,13 @@ def get_model_numbers(X_train, X_validate, X_test, y_train, y_validate, y_test):
     metrics_test_df.loc[4] = ['Generalized Linear Model (GLM)', rmse, r2]
 
 
-    metrics_train_df.rmse = metrics_train_df.rmse.astype(int)
-    metrics_validate_df.rmse = metrics_validate_df.rmse.astype(int)
-    metrics_test_df.rmse = metrics_test_df.rmse.astype(int)
-    print()
-    metrics_train_df.r2 = (metrics_train_df.r2 * 100).astype(int)
-    metrics_validate_df.r2 = (metrics_validate_df.r2 * 100).astype(int)
-    metrics_test_df.r2 = (metrics_test_df.r2 * 100).astype(int)
+    # metrics_train_df.rmse = metrics_train_df.rmse.astype(int)
+    # metrics_validate_df.rmse = metrics_validate_df.rmse.astype(int)
+    # metrics_test_df.rmse = metrics_test_df.rmse.astype(int)
+    # print()
+    # metrics_train_df.r2 = (metrics_train_df.r2 * 100).astype(int)
+    # metrics_validate_df.r2 = (metrics_validate_df.r2 * 100).astype(int)
+    # metrics_test_df.r2 = (metrics_test_df.r2 * 100).astype(int)
 
     return metrics_train_df, metrics_validate_df, metrics_test_df
 
@@ -213,3 +213,53 @@ def univariate_visual(df):
         plt.show()
         
     plt.show()
+
+
+def correlation_charts(train,columns_list, target):
+    '''
+    Creates and shows visuals for Correlation tests 
+    '''
+    plt.figure(figsize=(14,3))
+    plt.suptitle('Bivariate Exploration: The Strongest Correlators of Wine Quality')
+    for i, col in enumerate(train[columns_list]):
+        if col != target:
+
+            sns.regplot(data = train, x = col, y = target, scatter_kws={'alpha': 0.1}, line_kws={'color': 'red'})
+
+            plt.show()
+
+
+def correlation_tests(train, columns_list, target):
+    '''
+    Runs a correlation test on dataframe features vs target variable
+    '''
+    corr_df = pd.DataFrame({'feature': [],
+                        'r': [],
+                       'p': []})
+    for i, col in enumerate(train[columns_list]):
+        r, p = stats.pearsonr(train[col], train[target])
+        corr_df.loc[i] = [col, abs(r), p]
+    to_return = corr_df.sort_values(by='r', ascending=False)
+    to_return['target'] = target
+    return to_return
+
+
+def scale_data(train,
+               validate,
+               test,
+               cols):
+    '''Takes in train, validate, and test set, and outputs scaled versions of the columns that were sent in as dataframes'''
+    #Make copies for scaling
+    train_scaled = train.copy() #Ah, making a copy of the df and then overwriting the data in .transform() to remove warning message
+    validate_scaled = validate.copy()
+    test_scaled = test.copy()
+    #Initiate scaler, using Min max scaler
+    scaler = MinMaxScaler()
+    #Fit to train only
+    scaler.fit(train[cols])
+    #Creates scaled dataframes of train, validate, and test. This will still preserve columns that were not sent in initially.
+    train_scaled[cols] = scaler.transform(train[cols])
+    validate_scaled[cols] = scaler.transform(validate[cols])
+    test_scaled[cols] = scaler.transform(test[cols])
+
+    return train_scaled, validate_scaled, test_scaled
