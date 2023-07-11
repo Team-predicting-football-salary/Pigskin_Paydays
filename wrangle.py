@@ -197,3 +197,19 @@ def get_model_numbers(X_train, X_validate, X_test, y_train, y_validate, y_test):
     metrics_test_df.r2 = (metrics_test_df.r2 * 100).astype(int)
 
     return metrics_train_df, metrics_validate_df, metrics_test_df
+
+
+def univariate_visual(df):
+    '''
+    creates histplots for all of my columns
+    '''
+    plt.figure(figsize=(25,15))
+    plt.xticks(rotation = 45)
+    for i, col in enumerate(df):
+
+        plt.title(col)
+        sns.histplot(df[col])
+        plt.xticks(rotation=45)
+        plt.show()
+        
+    plt.show()
