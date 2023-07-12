@@ -298,11 +298,11 @@ def positive_negative(r_value):
         return 'Neutral'
     
 
-def get_explore_data(columns_list, list_to_remove, corr_test):
+def get_explore_data(columns_list, corr_test):
     '''
     Creates the explore DataFrame to show exploratory analysis
     '''
-    explore = pd.DataFrame(columns_list + list_to_remove)
+    explore = pd.DataFrame(columns_list)
     explore.columns = ['Features']
     explore['Correlation'] = corr_test['r'].apply(positive_negative)
     explore['Moving Forward'] = corr_test['p'].apply(moving_forward)
@@ -386,7 +386,7 @@ def run_fold(df, columns_list, target):
         'link':['auto', 'identity', 'log'],
         'alpha':range(1,21),
     }
-
+    
     lars = LassoLars(random_state =123)
     Linear_regression1 = LinearRegression()
     glm = TweedieRegressor(power=2, alpha=0)
@@ -394,7 +394,7 @@ def run_fold(df, columns_list, target):
 
     the_parameters = [parameters_lars, parameters_linear, parameters_glm]
 
-
+    best_parameters = []
     models = ['lars','Linear_regression1','glm']
     master_df = pd.DataFrame()
     for number, tree in enumerate([lars, Linear_regression1, glm]):
@@ -405,6 +405,37 @@ def run_fold(df, columns_list, target):
             p['score'] = abs(score)
             p['model'] = models[number]
         new_df = pd.DataFrame(pd.DataFrame(grid.cv_results_['params']).sort_values('score', ascending=True))
+
+        best_parameters.append(grid.best_estimator_)
         master_df = pd.concat([master_df, new_df])
+
+    baseline = y_train.mean()
+    baseline_array = np.repeat(baseline, len(X_train))
+    rmse, r2 = metrics_reg(y_train, baseline_array)
+
+    metrics_test_df = pd.DataFrame(data=[
+    {
+        'model_validate':'baseline',
+        'rmse':rmse,
+        'r2':r2
+    }
+    ])
+
+    pred_lars = best_parameters[0].predict(X_test)
+    rmse, r2 = metrics_reg(y_test, pred_lars)
+    metrics_test_df.loc[1] = ['lasso lars(lars)', rmse, r2]
+
+    
+
+
+
+    
+    
+
+    return master_df,metrics_test_df
+
+
+
+
 
 
