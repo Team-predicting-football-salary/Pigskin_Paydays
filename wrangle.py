@@ -17,6 +17,17 @@ from sklearn.metrics import r2_score
 from sklearn.linear_model import LassoLars
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import TweedieRegressor
+from sklearn.feature_selection import SelectKBest, RFE, f_regression, SequentialFeatureSelector
+from pydataset import data
+from sklearn.linear_model import LinearRegression
+
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import train_test_split
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
 
 'How to run everything format for modeling'
 '''
@@ -220,7 +231,7 @@ def correlation_charts(train,columns_list, target):
     Creates and shows visuals for Correlation tests 
     '''
     plt.figure(figsize=(14,3))
-    plt.suptitle('Bivariate Exploration: The Strongest Correlators of Wine Quality')
+    # plt.suptitle('Bivariate Exploration: The Strongest Correlators of target variable')
     for i, col in enumerate(train[columns_list]):
         if col != target:
 
@@ -238,8 +249,8 @@ def correlation_tests(train, columns_list, target):
                        'p': []})
     for i, col in enumerate(train[columns_list]):
         r, p = stats.pearsonr(train[col], train[target])
-        corr_df.loc[i] = [col, abs(r), p]
-    to_return = corr_df.sort_values(by='r', ascending=False)
+        corr_df.loc[i] = [col, r, p]
+    to_return = corr_df.sort_values(by='p', ascending=False)
     to_return['target'] = target
     return to_return
 
@@ -263,3 +274,137 @@ def scale_data(train,
     test_scaled[cols] = scaler.transform(test[cols])
 
     return train_scaled, validate_scaled, test_scaled
+
+
+def moving_forward(p_val):
+    '''
+    This function returns whether or not a p value is less than alpha
+    '''
+    if p_val < .05:
+        return 'Yes'
+    else:
+        return 'No'
+    
+    
+def positive_negative(r_value):
+    '''
+    This runction returns whether or not there is positive or negative correlation
+    '''
+    if r_value < 0:
+        return 'Negative'
+    elif r_value > 0:
+        return 'Positive'
+    else:
+        return 'Neutral'
+    
+
+def get_explore_data(columns_list, list_to_remove, corr_test):
+    '''
+    Creates the explore DataFrame to show exploratory analysis
+    '''
+    explore = pd.DataFrame(columns_list + list_to_remove)
+    explore.columns = ['Features']
+    explore['Correlation'] = corr_test['r'].apply(positive_negative)
+    explore['Moving Forward'] = corr_test['p'].apply(moving_forward)
+    return explore
+
+
+def best_features(X_train, y_train):
+    '''
+    Uses Kbest object to find the best features for our model
+    '''
+    kbest = SelectKBest(f_regression, k=2)
+    kbest.fit(X_train, y_train) 
+    kbest_results = pd.DataFrame(
+                    dict(p=kbest.pvalues_, f=kbest.scores_),
+                    index = X_train.columns)
+    return kbest_results.sort_values(by=['p', 'f'])
+
+
+def rfe(X_train, y_train, the_k):
+    '''
+    Finds best features for LinearRegression, LassoLars, and GLM and ranks them
+    '''
+    Linear_regression = LinearRegression()
+    lars = LassoLars()
+    glm = TweedieRegressor(power=2, alpha=0)
+    
+    model_names = ['Linear_regression','LassoLars','GLM']
+    models = [Linear_regression, lars,glm]
+    master_df = pd.DataFrame()
+    
+    for j in range(len(models)):
+        for i in range(1):
+            rfe = RFE(models[j], n_features_to_select=the_k)
+            rfe.fit(X_train, y_train)
+            the_df = pd.DataFrame(
+            {'rfe_ranking':rfe.ranking_, 'Model':model_names[j]},
+            index=X_train.columns)
+            master_df = pd.concat( [master_df, the_df.sort_values(by='rfe_ranking')])
+            
+    return master_df
+
+
+def rfe_pf(X_train, y_train, the_k):
+    '''
+    work in progress !!!!
+    finds the best features for a polynomial features model
+    '''
+    pf = PolynomialFeatures(degree=2)
+
+    models = [pf]
+    model_names = ['pf']
+    master_df = pd.DataFrame()
+    
+    for j in range(len(models)):
+        for i in range(1):
+            rfe = RFE(models[j], n_features_to_select=the_k)
+            rfe.fit(X_train, y_train)
+            the_df = pd.DataFrame(
+            {'rfe_ranking':rfe.ranking_, 'Model':model_names[j]},
+            index=X_train.columns)
+            master_df = pd.concat( [master_df, the_df.sort_values(by='rfe_ranking')])
+            
+    return master_df
+
+def run_fold(df, columns_list, target):
+    X = df[columns_list]
+    y = df[target]
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y,
+                                                        random_state=123)
+    parameters_lars = {
+        'alpha':range(1,21),
+        'fit_intercept':[True, False],
+        'verbose': [True, False]
+    }
+
+    parameters_linear = {'n_jobs':range(1,21)
+                    }
+
+    parameters_glm = {
+        'link':['auto', 'identity', 'log'],
+        'alpha':range(1,21),
+    }
+
+    lars = LassoLars(random_state =123)
+    Linear_regression1 = LinearRegression()
+    glm = TweedieRegressor(power=2, alpha=0)
+
+
+    the_parameters = [parameters_lars, parameters_linear, parameters_glm]
+
+
+    models = ['lars','Linear_regression1','glm']
+    master_df = pd.DataFrame()
+    for number, tree in enumerate([lars, Linear_regression1, glm]):
+        grid = GridSearchCV(tree, the_parameters[number], cv=5, scoring = 'neg_root_mean_squared_error')
+        grid.fit(X_train, y_train)
+        
+        for p, score in zip(grid.cv_results_['params'], grid.cv_results_['mean_test_score']):
+            p['score'] = abs(score)
+            p['model'] = models[number]
+        new_df = pd.DataFrame(pd.DataFrame(grid.cv_results_['params']).sort_values('score', ascending=True))
+        master_df = pd.concat([master_df, new_df])
+
+
