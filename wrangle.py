@@ -164,6 +164,7 @@ def get_model_numbers(X_train, X_validate, X_test, y_train, y_validate, y_test):
 
 
     pf = PolynomialFeatures(degree=2)
+
     X_train_degree2 = pf.fit_transform(X_train)
 
     pr = LinearRegression()
@@ -435,7 +436,26 @@ def run_fold(df, columns_list, target):
     return master_df,metrics_test_df
 
 
+def univariate_findings():
+    the_dict = {'games_played':'left_skewed', 'comp': 'non-symmetric bimodal', 'att':'non-symmetric bimodal','comp_pct':'normally', 'yds':'non-symmetric bimodal','avg_yds_per_att':'normally','td':'right-skewed', 'int':'right-skewed', 'pass_rating':'normally', 'rush_att':'right-skewed', 'rush_yds': 'right-skewed', 'rush_avg':'normally', 'rush_td':'right-skewed', 'age':'right-skewed', 'td_perc':'normally', 'int_perc': 'non-symmetric bimodal','fir_dn_throws':'non-symmetric bimodal', 'Lng_comp':'normally', 'yds_per_comp':'normally', 'yds_per_gm':'normally', 'QBR':'normally', 'sk':'normally', '4QC':'right-skewed', 'GWD': 'right-skewed'}
+    key_list=[]
+    value_list = []
 
+    for key, value in the_dict.items():
+        key_list.append(key)
+        value_list.append(value)
+    the_df = pd.DataFrame()
+    the_df['Feature'] = key_list
+    the_df['Distribution'] = value_list
+    the_df
+
+
+def get_target_and_columns(df, train):
+    columns_list = df.select_dtypes(exclude=['object']).columns.to_list()
+    columns_list.remove('percent_of_cap')
+    target = 'percent_of_cap'
+    corr_test = correlation_tests(train, columns_list , target).reset_index().drop(columns = 'index')
+    return columns_list, target, corr_test
 
 
 
