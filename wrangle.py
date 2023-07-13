@@ -3,38 +3,29 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import os
+
 from scipy import stats
 from sklearn.model_selection import train_test_split
-from sklearn.impute import SimpleImputer
+
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.preprocessing import RobustScaler
-from sklearn.preprocessing import StandardScaler
-from sklearn.preprocessing import QuantileTransformer
+
+
+
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import r2_score
 from sklearn.linear_model import LassoLars
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import TweedieRegressor
-from sklearn.feature_selection import SelectKBest, RFE, f_regression, SequentialFeatureSelector
-from pydataset import data
-from sklearn.linear_model import LinearRegression
+from sklearn.feature_selection import SelectKBest, RFE, f_regression
 
-from sklearn.model_selection import cross_val_score
+from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-
-'How to run everything format for modeling'
-'''
-list_of_features = the_df.columns[2:6].to_list()
-target = the_df.columns[9]
-run_everything(df, list_of_features, target)
-'''
 
 def concat_dataframes():
     '''loads in all of the csv's and concats them into a single pandas dataframe'''
@@ -253,6 +244,7 @@ def correlation_tests(train, columns_list, target):
         corr_df.loc[i] = [col, r, p]
     to_return = corr_df.sort_values(by='p', ascending=False)
     to_return['target'] = target
+
     return to_return
 
 
@@ -346,29 +338,38 @@ def rfe(X_train, y_train, the_k):
     return master_df
 
 
-def rfe_pf(X_train, y_train, the_k):
-    '''
-    work in progress !!!!
-    finds the best features for a polynomial features model
-    '''
-    pf = PolynomialFeatures(degree=2)
+# def rfe_pf(X_train, y_train, the_k):
+#     '''
+#     work in progress !!!!
+#     finds the best features for a polynomial features model
+#     '''
+#     pf = PolynomialFeatures(degree=2)
 
-    models = [pf]
-    model_names = ['pf']
-    master_df = pd.DataFrame()
+#     models = [pf]
+#     model_names = ['pf']
+#     master_df = pd.DataFrame()
     
-    for j in range(len(models)):
-        for i in range(1):
-            rfe = RFE(models[j], n_features_to_select=the_k)
-            rfe.fit(X_train, y_train)
-            the_df = pd.DataFrame(
-            {'rfe_ranking':rfe.ranking_, 'Model':model_names[j]},
-            index=X_train.columns)
-            master_df = pd.concat( [master_df, the_df.sort_values(by='rfe_ranking')])
+#     for j in range(len(models)):
+#         for i in range(1):
+#             rfe = RFE(models[j], n_features_to_select=the_k)
+#             rfe.fit(X_train, y_train)
+#             the_df = pd.DataFrame(
+#             {'rfe_ranking':rfe.ranking_, 'Model':model_names[j]},
+#             index=X_train.columns)
+#             master_df = pd.concat( [master_df, the_df.sort_values(by='rfe_ranking')])
             
-    return master_df
+#     return master_df
 
 def run_fold(df, columns_list, target):
+    '''
+    Scales the data then
+    runs the train test method to split the data 
+    then runs it through various models with various hyperparameters
+    '''
+    scaler = MinMaxScaler()
+    scaler.fit(df[columns_list])
+    df[columns_list] = scaler.transform(df[columns_list])
+
     X = df[columns_list]
     y = df[target]
 
@@ -426,17 +427,13 @@ def run_fold(df, columns_list, target):
     rmse, r2 = metrics_reg(y_test, pred_lars)
     metrics_test_df.loc[1] = ['lasso lars(lars)', rmse, r2]
 
-    
-
-
-
-    
-    
-
     return master_df,metrics_test_df
 
 
 def univariate_findings():
+    '''
+    Creates a pandas dataframe that shows various findings during the univariate analysis
+    '''
     the_dict = {'games_played':'left_skewed', 'comp': 'non-symmetric bimodal', 'att':'non-symmetric bimodal','comp_pct':'normally', 'yds':'non-symmetric bimodal','avg_yds_per_att':'normally','td':'right-skewed', 'int':'right-skewed', 'pass_rating':'normally', 'rush_att':'right-skewed', 'rush_yds': 'right-skewed', 'rush_avg':'normally', 'rush_td':'right-skewed', 'age':'right-skewed', 'td_perc':'normally', 'int_perc': 'non-symmetric bimodal','fir_dn_throws':'non-symmetric bimodal', 'Lng_comp':'normally', 'yds_per_comp':'normally', 'yds_per_gm':'normally', 'QBR':'normally', 'sk':'normally', '4QC':'right-skewed', 'GWD': 'right-skewed'}
     key_list=[]
     value_list = []
@@ -451,6 +448,9 @@ def univariate_findings():
 
 
 def get_target_and_columns(df, train):
+    '''
+    Preps the data and runs a correlation test
+    '''
     columns_list = df.select_dtypes(exclude=['object']).columns.to_list()
     columns_list.remove('percent_of_cap')
     target = 'percent_of_cap'
