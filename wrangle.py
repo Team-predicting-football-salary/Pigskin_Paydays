@@ -444,7 +444,7 @@ def univariate_findings():
     the_df = pd.DataFrame()
     the_df['Feature'] = key_list
     the_df['Distribution'] = value_list
-    the_df
+    return the_df
 
 
 def get_target_and_columns(df, train):
