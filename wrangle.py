@@ -126,16 +126,16 @@ def get_model_numbers(X_train, X_validate, X_test, y_train, y_validate, y_test):
 
     Linear_regression1 = LinearRegression()
     Linear_regression1.fit(X_train,y_train)
-    predict_linear = Linear_regression1.predict(X_train)
-    rmse, r2 = metrics_reg(y_train, predict_linear)
+    predict_linear_train = Linear_regression1.predict(X_train)
+    rmse, r2 = metrics_reg(y_train, predict_linear_train)
     metrics_train_df.loc[1] = ['ordinary least squared(OLS)', rmse, r2]
 
-    predict_linear = Linear_regression1.predict(X_validate)
-    rmse, r2 = metrics_reg(y_validate, predict_linear)
+    predict_linear_validate = Linear_regression1.predict(X_validate)
+    rmse, r2 = metrics_reg(y_validate, predict_linear_validate)
     metrics_validate_df.loc[1] = ['ordinary least squared(OLS)', rmse, r2]
     
-    predict_linear = Linear_regression1.predict(X_test)
-    rmse, r2 = metrics_reg(y_test, predict_linear)
+    predict_linear_test = Linear_regression1.predict(X_test)
+    rmse, r2 = metrics_reg(y_test, predict_linear_test)
     metrics_test_df.loc[1] = ['ordinary least squared(OLS)', rmse, r2]
 
 
@@ -199,7 +199,7 @@ def get_model_numbers(X_train, X_validate, X_test, y_train, y_validate, y_test):
     # metrics_validate_df.r2 = (metrics_validate_df.r2 * 100).astype(int)
     # metrics_test_df.r2 = (metrics_test_df.r2 * 100).astype(int)
 
-    return metrics_train_df, metrics_validate_df, metrics_test_df
+    return metrics_train_df, metrics_validate_df, metrics_test_df, predict_linear_train
 
 
 def univariate_visual(df):
@@ -338,28 +338,6 @@ def rfe(X_train, y_train, the_k):
     return master_df
 
 
-# def rfe_pf(X_train, y_train, the_k):
-#     '''
-#     work in progress !!!!
-#     finds the best features for a polynomial features model
-#     '''
-#     pf = PolynomialFeatures(degree=2)
-
-#     models = [pf]
-#     model_names = ['pf']
-#     master_df = pd.DataFrame()
-    
-#     for j in range(len(models)):
-#         for i in range(1):
-#             rfe = RFE(models[j], n_features_to_select=the_k)
-#             rfe.fit(X_train, y_train)
-#             the_df = pd.DataFrame(
-#             {'rfe_ranking':rfe.ranking_, 'Model':model_names[j]},
-#             index=X_train.columns)
-#             master_df = pd.concat( [master_df, the_df.sort_values(by='rfe_ranking')])
-            
-#     return master_df
-
 def run_fold(df, columns_list, target):
     '''
     Scales the data then
@@ -458,4 +436,40 @@ def get_target_and_columns(df, train):
     return columns_list, target, corr_test
 
 
+def new_visual_univariate_findings(df):
+    for col in df.select_dtypes(include=['object']).columns:                   
 
+        num_cols = len(df.select_dtypes(exclude=['object']).columns)
+        num_rows, num_cols_subplot = divmod(num_cols, 3)
+        if num_cols_subplot > 0:
+            num_rows += 1
+
+        fig, axes = plt.subplots(num_rows, 3, figsize=(15, num_rows * 5))
+
+        for i, col in enumerate(df.select_dtypes(exclude=['object']).columns):
+            row_idx, col_idx = divmod(i, 3)
+            sns.histplot(df[col], ax=axes[row_idx, col_idx])
+            axes[row_idx, col_idx].set_title(f'Histogram of {col}')
+
+        plt.tight_layout()
+        plt.show()
+
+
+def new_visual_multivariate_findings(df, target):
+    for col in df.select_dtypes(include=['object']).columns:                   
+
+        num_cols = len(df.select_dtypes(exclude=['object']).columns)
+        num_rows, num_cols_subplot = divmod(num_cols, 3)
+        if num_cols_subplot > 0:
+            num_rows += 1
+
+        fig, axes = plt.subplots(num_rows, 3, figsize=(15, num_rows * 5))
+
+        for i, col in enumerate(df.select_dtypes(exclude=['object']).columns):
+            row_idx, col_idx = divmod(i, 3)
+            sns.regplot(data = df, x = col, y = target, scatter_kws={'alpha': 0.1}, line_kws={'color': 'red'},ax=axes[row_idx, col_idx])
+            
+            axes[row_idx, col_idx].set_title(f'Scatterplot of {col} and {target}')
+
+        plt.tight_layout()
+        plt.show()
