@@ -30,21 +30,46 @@ Column Name | Description | Key
 --- | --- | ---
 player_name | The name of the quarterback | string
 team | The team that the quarterback plays for | string
-tt | Time to throw: Average amount of time elapsed from the time of snap to throw on every pass attempt for a passer (sacks excluded) | float
-cay | Completed air yards: Average total distance in yards of all passes that were completed in the season | float
-iay | Intended air yards: Average total distance in yards of all passes | float
-ayd | Air yards differential: Difference between completed and intended air yards | float
-agg | Aggressiveness (in percent): Percentage of attempts where the ball was thrown to a receiver where there was a defender within one yard distance | percentage, float
-lcad | Longest completed air distance: Distance in yards of longest completed throw that season | float
-ayts | Air yards to the sticks: Average distance in yards ahead or behind the first down marker for all attempted passes | float
-att | Passing attempts: The number of times that the quarterback threw the ball that season | integer
-yds | Yards: Total number of yards that the quarterback threw that season | integer
-td | Touchdowns: Number of touchdowns that quarterback threw | integer
-int | Intercepts: Number of times that the quarterback's throw was intercepted by the opposing team | integer
-rate | The given rating that a player is given by the NFL | float
-comp | Completion probability: Probability of a pass completion (actual) | percentage, float
-xcomp | Expected completion percentage: Probability of a pass completion (expected) | percentage, float
-comp_diff | A quarterback's actual completion percentage compared to their expected | percentage, float
+year | Year that specific row of stats were collected | integer  
+games_played | The amount of games played in a specific season | float  
+comp | Completion: Completed pass attempt | float  
+att | Passing attempts: The number of times that the quarterback threw the ball that season | float  
+comp_pct | Completion Percentage: Percentage of completed passes vs. pass attempts | percentage, float  
+yds | Yards: Total number of yards that the quarterback threw that season | float  
+avg_yds_per_att | Average Yards Per Attempt: Average yards gained per pass attempt | percentage, float  
+td | Touchdowns: Number of touchdowns that quarterback threw - highest scoring play | float  
+int | Intercepts: Number of times that the quarterback's throw was intercepted by the opposing team - negative stat for QB's | float  
+pass_rating | Passer Rating: one way to evaluate a QB's play performance. Scale from 0 - 158.3 higher the score the better | float  
+rush_att | Rushing Attempts: How many times a QB ran the ball instead of passing | float  
+rush_yds | Rushing Yards: Amount of yards gain from running the ball | float  
+rush_avg | Rushing Average: Average yards gain from each run attempt | percentage, float  
+rush_td | Rushing Touchdowns: The amount of touchdowns gained from running the ball | float  
+year_signed | The year a QB signed a new contract | integer  
+percent_of_cap (target variable) | The amount of cap space allocated to the player | percentage, float  
+age | How old the QB is that specific season | integer  
+td_perc | Touchdown Percentage: Percentage of touchdowns gained from passing attempts | percentage, float  
+int_perc | Interception Percentage: Percentage of interceptions gained from passing attempts | percentage, float  
+fir_dn_throws | First Down Throws: Amount of first downs a QB passes for. First down gain is a good stat for QB | integer  
+lng_comp | Longest completion: longest completed pass play | integer  
+yds_per_comp | Yards per completed pass: Average number of yards gained per completed pass | percentage, float  
+yd_per_gm | Yards per Game: Average yards from pass completions per game | percentage, float  
+QBR | Quarterback Rating: One way to evaluate a QB's play performance. Scale from 0 - 100 higher the score the better | float  
+Sk | Sack: Number of times a QB was tackled for negative yards | integer  
+4QC | Fourth Quarter Comeback: The QB's team was losing but the QB took the lead or tied the game in the fourth quarter | float  
+GWD | Game winning drive: The QB's team was tied or losing but the QB took the lead to end the game | float  
+win | Amount of wins the QB and their team gained | integer  
+loss | Amount of losses the QB and their team gained | integer  
+wild_card | First round of the playoffs: 1 = QB played that round 0 = QB did not play that round | float  
+div_rnd | Second round of the playoffs: 1 = QB played that round 0 = QB did not play that round | float  
+conf_rnd | Third round of the playoffs: 1 = QB played that round 0 = QB did not play that round | float  
+superbowl | Final round of the playoffs: 1 = QB played that round 0 = QB did not play that round | float  
+superbowl_win | 1 = QB won the superbowl 0 = QB did not win the superbowl | float  
+win_perc | Percentage of games that the QB won in a specific season | percentage, float  
+loss_perc | Percentage of games that the QB lost in a specific season |percentage, float  
+td_per_game | The average number of touchdowns a QB passed for in games played | percentage, float  
+sk_per_game | The average number of sacks on a QB per in games played | percentage, float
+
+
 
 # How to Reproduce
 
