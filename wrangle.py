@@ -25,6 +25,7 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from sklearn.ensemble import RandomForestRegressor
 
 
 def concat_dataframes():
@@ -129,6 +130,7 @@ def get_model_numbers(X_train, X_validate, X_test, y_train, y_validate, y_test):
     predict_linear_train = Linear_regression1.predict(X_train)
     rmse, r2 = metrics_reg(y_train, predict_linear_train)
     metrics_train_df.loc[1] = ['ordinary least squared(OLS)', rmse, r2]
+    feature_weights = Linear_regression1.coef_
 
     predict_linear_validate = Linear_regression1.predict(X_validate)
     rmse, r2 = metrics_reg(y_validate, predict_linear_validate)
@@ -148,10 +150,6 @@ def get_model_numbers(X_train, X_validate, X_test, y_train, y_validate, y_test):
     pred_lars = lars.predict(X_validate)
     rmse, r2 = metrics_reg(y_validate, pred_lars)
     metrics_validate_df.loc[2] = ['lasso lars(lars)', rmse, r2]
-    
-    pred_lars = lars.predict(X_test)
-    rmse, r2 = metrics_reg(y_test, pred_lars)
-    metrics_test_df.loc[2] = ['lasso lars(lars)', rmse, r2]
 
 
     pf = PolynomialFeatures(degree=2)
@@ -168,13 +166,8 @@ def get_model_numbers(X_train, X_validate, X_test, y_train, y_validate, y_test):
     pred_pr = pr.predict(X_validate_degree2)
     rmse, r2 = metrics_reg(y_validate, pred_pr)
     metrics_validate_df.loc[3] = ['Polynomial Regression(poly2)', rmse, r2]
-
-    X_test_degree2 = pf.transform(X_test)
-    pred_pr = pr.predict(X_test_degree2)
-    rmse, r2 = metrics_reg(y_test, pred_pr)
-    metrics_test_df.loc[3] = ['Polynomial Regression(poly2)', round(rmse,2), r2]
-
     
+
     glm = TweedieRegressor(power=2, alpha=0)
     glm.fit(X_train, y_train)
     
@@ -185,22 +178,21 @@ def get_model_numbers(X_train, X_validate, X_test, y_train, y_validate, y_test):
     pred_glm = glm.predict(X_validate)
     rmse, r2 = metrics_reg(y_validate, pred_glm)
     metrics_validate_df.loc[4] = ['Generalized Linear Model (GLM)', rmse, r2]
-    
-    pred_glm = glm.predict(X_test)
-    rmse, r2 = metrics_reg(y_test, pred_glm)
-    metrics_test_df.loc[4] = ['Generalized Linear Model (GLM)', rmse, r2]
 
 
-    # metrics_train_df.rmse = metrics_train_df.rmse.astype(int)
-    # metrics_validate_df.rmse = metrics_validate_df.rmse.astype(int)
-    # metrics_test_df.rmse = metrics_test_df.rmse.astype(int)
-    # print()
-    # metrics_train_df.r2 = (metrics_train_df.r2 * 100).astype(int)
-    # metrics_validate_df.r2 = (metrics_validate_df.r2 * 100).astype(int)
-    # metrics_test_df.r2 = (metrics_test_df.r2 * 100).astype(int)
+    rfr = RandomForestRegressor(n_estimators=100, random_state=42)  
+    rfr.fit(X_train, y_train)  
+    pred_rfr = rfr.predict(X_train)
+    rmse, r2 = metrics_reg(y_train, pred_rfr)
+    metrics_train_df.loc[5] = ['Random Forest Regressor', rmse, r2]
 
-    return metrics_train_df, metrics_validate_df, metrics_test_df, predict_linear_train
 
+    pred_rfr = rfr.predict(X_validate)
+    rmse, r2 = metrics_reg(y_validate, pred_rfr)
+    metrics_validate_df.loc[5] = ['Random Forest Regressor', rmse, r2]
+
+
+    return metrics_train_df, metrics_validate_df, metrics_test_df, predict_linear_train, feature_weights, predict_linear_test
 
 def univariate_visual(df):
     '''
