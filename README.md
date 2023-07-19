@@ -1,3 +1,5 @@
+<img src="https://github.com/Team-predicting-football-salary/Pigskin_Paydays/blob/main/images/title.png?raw=true">
+
 # Pigskin Paydays
 
 # Project Description 
@@ -14,6 +16,7 @@ Acquisition
     - For player stats, acquire data from <a href='https://nextgenstats.nfl.com/stats/passing/2022/REG/all#yards'>Next Gen Stats</a>
 
 Preparation
+    - 
 
 Exploration
 
