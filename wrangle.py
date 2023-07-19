@@ -8,9 +8,7 @@ from scipy import stats
 from sklearn.model_selection import train_test_split
 
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.preprocessing import RobustScaler
 
-from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import r2_score
@@ -124,7 +122,6 @@ def get_model_numbers(X_train, X_validate, X_test, y_train, y_validate, y_test):
     }
     ])
 
-
     Linear_regression1 = LinearRegression()
     Linear_regression1.fit(X_train,y_train)
     predict_linear_train = Linear_regression1.predict(X_train)
@@ -139,7 +136,6 @@ def get_model_numbers(X_train, X_validate, X_test, y_train, y_validate, y_test):
     predict_linear_test = Linear_regression1.predict(X_test)
     rmse, r2 = metrics_reg(y_test, predict_linear_test)
     metrics_test_df.loc[1] = ['ordinary least squared(OLS)', rmse, r2]
-
 
     lars = LassoLars()
     lars.fit(X_train, y_train)
@@ -167,7 +163,6 @@ def get_model_numbers(X_train, X_validate, X_test, y_train, y_validate, y_test):
     rmse, r2 = metrics_reg(y_validate, pred_pr)
     metrics_validate_df.loc[3] = ['Polynomial Regression(poly2)', rmse, r2]
     
-
     glm = TweedieRegressor(power=2, alpha=0)
     glm.fit(X_train, y_train)
     
@@ -179,20 +174,18 @@ def get_model_numbers(X_train, X_validate, X_test, y_train, y_validate, y_test):
     rmse, r2 = metrics_reg(y_validate, pred_glm)
     metrics_validate_df.loc[4] = ['Generalized Linear Model (GLM)', rmse, r2]
 
-
     rfr = RandomForestRegressor(n_estimators=100, random_state=42)  
     rfr.fit(X_train, y_train)  
     pred_rfr = rfr.predict(X_train)
     rmse, r2 = metrics_reg(y_train, pred_rfr)
     metrics_train_df.loc[5] = ['Random Forest Regressor', rmse, r2]
 
-
     pred_rfr = rfr.predict(X_validate)
     rmse, r2 = metrics_reg(y_validate, pred_rfr)
     metrics_validate_df.loc[5] = ['Random Forest Regressor', rmse, r2]
 
-
     return metrics_train_df, metrics_validate_df, metrics_test_df, predict_linear_train, feature_weights, predict_linear_test
+
 
 def univariate_visual(df):
     '''
@@ -235,7 +228,6 @@ def correlation_tests(train, columns_list, target):
         r, p = stats.pearsonr(train[col], train[target])
         corr_df.loc[i] = [col, r, p]
     to_return = corr_df.sort_values(by='p', ascending=False)
-    to_return['target'] = target
 
     return to_return
 
@@ -425,10 +417,14 @@ def get_target_and_columns(df, train):
     columns_list.remove('percent_of_cap')
     target = 'percent_of_cap'
     corr_test = correlation_tests(train, columns_list , target).reset_index().drop(columns = 'index')
+    corr_test['Moving Forward'] = corr_test['p'].apply(moving_forward)
     return columns_list, target, corr_test
 
 
 def new_visual_univariate_findings(df):
+    '''
+    This function displays all of our histplots during the univariate analysis
+    '''
     for col in df.select_dtypes(include=['object']).columns:                   
 
         num_cols = len(df.select_dtypes(exclude=['object']).columns)
@@ -448,6 +444,9 @@ def new_visual_univariate_findings(df):
 
 
 def new_visual_multivariate_findings(df, target):
+    '''
+    This function displays all the regplots for our bivariate analysis
+    '''
     for col in df.select_dtypes(include=['object']).columns:                   
 
         num_cols = len(df.select_dtypes(exclude=['object']).columns)
