@@ -228,7 +228,6 @@ def correlation_tests(train, columns_list, target):
         r, p = stats.pearsonr(train[col], train[target])
         corr_df.loc[i] = [col, r, p]
     to_return = corr_df.sort_values(by='p', ascending=False)
-    to_return['target'] = target
 
     return to_return
 
@@ -418,6 +417,7 @@ def get_target_and_columns(df, train):
     columns_list.remove('percent_of_cap')
     target = 'percent_of_cap'
     corr_test = correlation_tests(train, columns_list , target).reset_index().drop(columns = 'index')
+    corr_test['Moving Forward'] = corr_test['p'].apply(moving_forward)
     return columns_list, target, corr_test
 
 
