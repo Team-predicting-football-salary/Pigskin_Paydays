@@ -14,9 +14,14 @@ To predict what percentage of a team's cap will be paid out to the quarterback f
 
 Acquisition
     - For player stats, acquire data from <a href='https://nextgenstats.nfl.com/stats/passing/2022/REG/all#yards'>Next Gen Stats</a>
+    - Original individual player stats dataset consisted of 458 rows and 19 columns. Each row contains a single player for a given year between 2010 and 2022. 
+    - Original playoff data consisted of 162 rows and 7 columns. Each row contains a team and the round that team made it to in a given year between 2010 and 2022.
+    - Original player salary data consisted of 1,590 and 11 columns. Each row contains a player and their salary for a given year. 
+
 
 Preparation
-    - 
+    - Once we merged our 3 data sets, cleaned the data, and conducted feature engineering, our final data frame consisted of 410 rows and 42 columns for exploration. Each row contains a single player with their stats for a respective year from 2010 to 2022. 
+    - Dropped all nulls after the merge.
 
 Exploration
 
@@ -80,7 +85,20 @@ Download the repository and run through the notebook.
 
 # Key Findings
 
+QB Evolution
+    - Game stats data matches the televised narative that NFL Quarterbacks are running the ball more often.
+        - There has been an varied increase in run attempts from 2010 to 2020. The data shows a major spike, more than doubled from 2020 to 2022.
+QB Contracts
+    - QB contract size in relation to salary cap percentage stayed relatively flat from 2010 to 2017. They began to rise in 2018 and has increased dramatically from 2021 to 2022; albeit we have a small sample size for 2022.
+Higher Pay for Winning QB's
+    - We found that on average, Quarterbacks who reached the playoffs demand a higher percentage of a teams salary cap. 
+    - There is no statistical signifance between quarterback contract size in relation to a teams salary cap who simply make the playoffs vs. a quarterback who's team advances to the Divisional Round, Conference Championship, Super Bowl, or wins the Super Bowl.
+
 # Conclusion
+
+Additional Factors
+    - There are more factors at play which contribute to a player's contract size. Data that is not quantifiable at the moment like a players intagible skills (leadership on and off the field, work ethic, relationships with other players or coaches, etc.) 
+
 
 # Recommendations
 
