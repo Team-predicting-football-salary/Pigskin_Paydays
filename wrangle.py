@@ -193,13 +193,14 @@ def univariate_visual(df):
     '''
     plt.figure(figsize=(25,15))
     plt.xticks(rotation = 45)
+    count = 0
     for i, col in enumerate(df):
-
-        plt.title(col)
-        sns.histplot(df[col])
-        plt.xticks(rotation=45)
-        plt.show()
-        
+        if count < 6:
+            plt.title(col)
+            sns.histplot(df[col])
+            plt.xticks(rotation=45)
+            plt.show()
+        count +=1
     plt.show()
 
 
@@ -425,38 +426,42 @@ def new_visual_univariate_findings(df):
     '''
     This function displays all of our histplots during the univariate analysis
     '''
-    for col in df.select_dtypes(include=['object']).columns:                   
+    count = 0
+    for col in df.select_dtypes(include=['object']).columns[:1]:                   
 
-        num_cols = len(df.select_dtypes(exclude=['object']).columns)
+        num_cols = len(df.select_dtypes(exclude=['object']).columns[:6])
         num_rows, num_cols_subplot = divmod(num_cols, 3)
         if num_cols_subplot > 0:
             num_rows += 1
 
         fig, axes = plt.subplots(num_rows, 3, figsize=(15, num_rows * 5))
+        if count < 1:
+            for i, col in enumerate(df.select_dtypes(exclude=['object']).columns[:6]):
+                
+                row_idx, col_idx = divmod(i, 3)
+                sns.histplot(df[col], ax=axes[row_idx, col_idx])
+                axes[row_idx, col_idx].set_title(f'Histogram of {col}')
+            
+            
 
-        for i, col in enumerate(df.select_dtypes(exclude=['object']).columns):
-            row_idx, col_idx = divmod(i, 3)
-            sns.histplot(df[col], ax=axes[row_idx, col_idx])
-            axes[row_idx, col_idx].set_title(f'Histogram of {col}')
-
-        plt.tight_layout()
-        plt.show()
+            plt.tight_layout()
+            plt.show()
 
 
 def new_visual_multivariate_findings(df, target):
     '''
     This function displays all the regplots for our bivariate analysis
     '''
-    for col in df.select_dtypes(include=['object']).columns:                   
+    for col in df.select_dtypes(include=['object']).columns[:1]:                   
 
-        num_cols = len(df.select_dtypes(exclude=['object']).columns)
+        num_cols = len(df.select_dtypes(exclude=['object']).columns[:6])
         num_rows, num_cols_subplot = divmod(num_cols, 3)
         if num_cols_subplot > 0:
             num_rows += 1
 
         fig, axes = plt.subplots(num_rows, 3, figsize=(15, num_rows * 5))
 
-        for i, col in enumerate(df.select_dtypes(exclude=['object']).columns):
+        for i, col in enumerate(df.select_dtypes(exclude=['object']).columns[:6]):
             row_idx, col_idx = divmod(i, 3)
             sns.regplot(data = df, x = col, y = target, scatter_kws={'alpha': 0.1}, line_kws={'color': 'red'},ax=axes[row_idx, col_idx])
             
