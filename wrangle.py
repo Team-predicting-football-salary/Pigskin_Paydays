@@ -91,7 +91,7 @@ def metrics_reg(y, yhat):
     return rmse, r2
 
 
-def get_model_numbers(X_train, X_validate, X_test, y_train, y_validate, y_test):
+def get_model_numbers(df,X_train, X_validate, X_test, y_train, y_validate, y_test):
     '''
     This function takes the data and runs it through various models and returns the
     results in pandas dataframes for train, test and validate data
@@ -128,6 +128,9 @@ def get_model_numbers(X_train, X_validate, X_test, y_train, y_validate, y_test):
     rmse, r2 = metrics_reg(y_train, predict_linear_train)
     metrics_train_df.loc[1] = ['ordinary least squared(OLS)', rmse, r2]
     feature_weights = Linear_regression1.coef_
+    
+    
+    
 
     predict_linear_validate = Linear_regression1.predict(X_validate)
     rmse, r2 = metrics_reg(y_validate, predict_linear_validate)
@@ -184,7 +187,7 @@ def get_model_numbers(X_train, X_validate, X_test, y_train, y_validate, y_test):
     rmse, r2 = metrics_reg(y_validate, pred_rfr)
     metrics_validate_df.loc[5] = ['Random Forest Regressor', rmse, r2]
 
-    return metrics_train_df, metrics_validate_df, metrics_test_df, predict_linear_train, feature_weights, predict_linear_test
+    return metrics_train_df, metrics_validate_df, metrics_test_df, predict_linear_train, feature_weights, predict_linear_test, predict_linear_validate
 
 
 def univariate_visual(df):
